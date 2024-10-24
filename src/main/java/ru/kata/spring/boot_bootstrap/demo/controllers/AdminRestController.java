@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.jboss.logging.Logger;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,84 +29,45 @@ public class AdminRestController {
         this.userService = userService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<List<User>> getUsers() {
-        try {
-            List<User> users = userService.listUsers();
-            logger.info("The users have been successfully found");
-            return new ResponseEntity<>(users, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error when creating the user");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        List<User> users = userService.listUsers();
+        logger.info("The users have been successfully found");
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<HttpStatus> createUser(@Valid @RequestBody User newUser) {
-        String role;
-        if (newUser.getRoles().toString().contains("ROLE_ADMIN")) {
-            role = "ROLE_ADMIN";
-        } else {
-            role = "ROLE_USER";
-        }
-        try {
-            userService.create(newUser, role);
-            logger.info("The user has been successfully created");
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (Exception e) {
-            logger.error("Error when creating the user");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        String role = newUser.getRoles().toString().contains("ROLE_ADMIN") ? "ROLE_ADMIN" : "ROLE_USER";
+        userService.create(newUser, role);
+        logger.info("The user has been successfully created");
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/read")
-    public ResponseEntity<User> getUserById(@RequestParam ("id") Long id) {
-        try {
-            User userById = userService.getUserById(id);
-            logger.info("The user has been successfully found");
-            return new ResponseEntity<>(userById, HttpStatus.OK);
-        } catch (UsernameNotFoundException e) {
-            logger.error("The user was not found");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error when finding the user");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<User> getUserById(@RequestParam("id") Long id) {
+        User userById = userService.getUserById(id);
+        logger.info("The user has been successfully found");
+        return new ResponseEntity<>(userById, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/edit")
     public ResponseEntity<HttpStatus> editUser(@Valid @RequestBody User editedUser) {
-        String role;
-        if (editedUser.getRoles().toString().contains("ROLE_ADMIN")) {
-            role = "ROLE_ADMIN";
-        } else {
-            role = "ROLE_USER";
-        }
-        try {
-            userService.update(editedUser, role);
-            logger.info("The user has been successfully updated");
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (UsernameNotFoundException e) {
-            logger.error("The user was not found");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error when updating the user");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        String role = editedUser.getRoles().toString().contains("ROLE_ADMIN") ? "ROLE_ADMIN" : "ROLE_USER";
+        userService.update(editedUser, role);
+        logger.info("The user has been successfully updated");
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete")
     public ResponseEntity<HttpStatus> deleteUser(@Valid @RequestBody User deletedUser) {
-        try {
-            userService.delete(deletedUser);
-            logger.info("The user was successfully deleted");
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (UsernameNotFoundException e) {
-            logger.error("The user was not found");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error when deleting the user");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        userService.delete(deletedUser);
+        logger.info("The user was successfully deleted");
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

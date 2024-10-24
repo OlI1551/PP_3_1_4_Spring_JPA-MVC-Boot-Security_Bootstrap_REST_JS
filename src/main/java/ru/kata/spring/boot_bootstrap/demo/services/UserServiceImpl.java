@@ -24,7 +24,6 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Override
     @Transactional(readOnly = true)
     public List<User> listUsers() {
@@ -37,7 +36,6 @@ public class UserServiceImpl implements UserService {
         return userDao.getUserById(userId);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Override
     @Transactional
     public void create(User user, String role) {
@@ -51,7 +49,6 @@ public class UserServiceImpl implements UserService {
         userDao.addUser(user);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Override
     @Transactional
     public void update(User user, String role) {
@@ -67,7 +64,6 @@ public class UserServiceImpl implements UserService {
         userDao.updateUser(user);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Override
     @Transactional
     public void delete(User user) {
