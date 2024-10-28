@@ -9,10 +9,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Table;
 import javax.persistence.Column;
 import javax.persistence.ManyToMany;
-import javax.persistence.FetchType;
 import javax.persistence.CascadeType;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -44,6 +44,7 @@ public class User implements UserDetails {
    int age;
 
    @Column(name = "email")
+   @Email
    @NotEmpty(message = "Email should not be empty")
    private String email;
 
@@ -51,7 +52,7 @@ public class User implements UserDetails {
    @NotEmpty(message = "Password should not be empty")
    private String password;
 
-   @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
+   @ManyToMany(cascade = CascadeType.MERGE)
    @JoinTable(
            name = "users_roles",
            joinColumns = @JoinColumn(name = "user_id"),
